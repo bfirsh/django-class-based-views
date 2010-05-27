@@ -129,10 +129,9 @@ class DetailViewTests(TestCase):
         self.assertRaises(ImproperlyConfigured, self.client.get, '/detail/author/invalid/qs/')
 
 class EditViewTests(TestCase):
-    fixtures = ['generic-views-test-data.json']
     urls = 'class_based_views.tests.urls'
 
-    def test_creation(self):
+    def test_create(self):
         res = self.client.get('/edit/authors/create/')
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, 'tests/list.html')
@@ -140,6 +139,23 @@ class EditViewTests(TestCase):
         res = self.client.post('/edit/authors/create/',
                         {'name': 'Randall Munroe', 'slug': 'randall-munroe'})
         self.assertEqual(res.status_code, 302)
+        self.assertEqual(str(Author.objects.all()), "[<Author: Randall Munroe>]")
+
+    def test_update(self):
+        Author.objects.create(**{'name': 'Randall Munroe', 'slug': 'randall-munroe'})
+        res = self.client.get('/edit/author/1/update/')
+        self.assertEqual(res.status_code, 200)
+        self.assertTemplateUsed(res, 'tests/detail.html')
+
+        res = self.client.post('/edit/author/1/update/',
+                        {'name': 'Randall Munroe (xkcd)', 'slug': 'randall-munroe'})
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(str(Author.objects.all()), "[<Author: Randall Munroe (xkcd)>]")
+
+        #res = self.client.put('/edit/author/1/update/',
+        #                {'name': 'Randall Munroe (xkcd)', 'slug': 'randall-munroe-xkcd'})
+        #self.assertEqual(res.status_code, 302)
+        #self.assertEqual(Author.objects.get(id=1).slug, 'randall-munroe-xkcd')
 
 
 class ArchiveViewTests(TestCase):

@@ -36,6 +36,20 @@ class AuthorCreate(class_based_views.CreateView):
 
 class AuthorUpdate(class_based_views.UpdateView):
     queryset = Author.objects.all()
+    template_name = 'tests/detail.html'
+    methods = ['GET', 'POST', 'PUT']
+
+    def get_form(self, request, obj, *args, **kwargs):
+        return AuthorForm(request.POST or None)
+
+    def process_form(self, request, obj, data):
+        for k, v in data.iteritems():
+            setattr(obj, k, v)
+        obj.save()
+
+    def redirect_to(self, request, obj):
+        return reverse('author_detail', args=[obj.id,])
+
 
 class ObjectDetail(class_based_views.DetailView):
     template_name = 'tests/detail.html'

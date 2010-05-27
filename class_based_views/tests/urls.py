@@ -13,7 +13,7 @@ urlpatterns = patterns('',
 
     # DetailView
     (r'^detail/obj/$',                            views.ObjectDetail()),
-    (r'^detail/author/(?P<pk>\d+)/$',             views.AuthorDetail()),
+    url(r'^detail/author/(?P<pk>\d+)/$',          views.AuthorDetail(), name="author_detail"),
     (r'^detail/author/byslug/(?P<slug>[\w-]+)/$', views.AuthorDetail()),
     (r'^detail/author/invalid/url/$',             views.AuthorDetail()),
     (r'^detail/author/invalid/qs/$',              views.AuthorDetail(queryset=None)),
