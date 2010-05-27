@@ -20,7 +20,8 @@ class DateView(ListView):
         # views weren't paginated.
         self.legacy_context = False
 
-    def get(self, request, obj, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object(request, *args, **kwargs)
         date_list, items, extra_context = self.get_dated_items(request, *args, **kwargs)
         template = self.get_template(request, items)
         context = self.get_context(request, items, date_list, extra_context)

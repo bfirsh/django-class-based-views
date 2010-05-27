@@ -20,10 +20,6 @@ class DetailView(View):
         )
         super(DetailView, self).__init__(**kwargs)
 
-    def get(self, request, obj, *args, **kwargs):
-        obj = self.get_object(request, *args, **kwargs)
-        return super(DetailView, self).get(request, obj=obj)
-
     def get_object(self, request, pk=None, slug=None, object_id=None, queryset=None):
         """
         Get the object this request wraps. By default this requires

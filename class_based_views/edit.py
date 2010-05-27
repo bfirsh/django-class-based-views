@@ -2,7 +2,8 @@ from django.http import HttpResponseRedirect
 from class_based_views import View, ListView, DetailView
 
 class FormView(View):
-    def post(self, request, obj, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
+        obj = self.get_object(request, *args, **kwargs)
         form = self.get_form(request, obj, *args, **kwargs)
         if form.is_valid():
             self.process_form(request, obj, form.cleaned_data)
@@ -28,23 +29,24 @@ class CreateView(ListView, FormView):
 
 
 class UpdateView(DetailView, FormView):
-    def put(self, request, obj, *args, **kwargs):
+    # FIXME: Er, perhaps not PUT
+    def put(self, request, *args, **kwargs):
         obj = self.get_object(request, *args, **kwargs)
         # Force evaluation to populate PUT
         request.POST
         request.PUT = request._post
         del request._post
-        return self.post(request, obj, *args, **kwargs)
+        return self.post(request, *args, **kwargs)
 
 
 class DeleteView(DetailView):
-    def delete(self, request, obj, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
         obj = self.get_object(request, *args, **kwargs)
         obj.delete()
         return HttpResponseRedirect(self.redirect_to(request, obj))
 
-    def post(self, request, obj, *args, **kwargs):
-        return self.delete(request, obj, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        return self.delete(request, *args, **kwargs)
 
     def redirect_to(self, request, obj):
         raise NotImplementedError
