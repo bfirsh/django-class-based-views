@@ -1,4 +1,4 @@
-from django.views.generic2 import DetailView
+from class_based_views import DetailView
 
 class FormView(DetailView):
     def post(self, request, obj, *args, **kwargs):

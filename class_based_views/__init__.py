@@ -1,6 +1,6 @@
-from django.views.generic2.base import GenericView
-from django.views.generic2.list import ListView
-from django.views.generic2.detail import DetailView
-from django.views.generic2.dates import (ArchiveView, YearView, MonthView,
+from class_based_views.base import GenericView
+from class_based_views.list import ListView
+from class_based_views.detail import DetailView
+from class_based_views.dates import (ArchiveView, YearView, MonthView,
                                          WeekView, DayView, TodayView,
                                          DateDetailView)

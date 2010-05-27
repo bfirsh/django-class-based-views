@@ -2,7 +2,7 @@ from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
 from django.utils.encoding import smart_str
-from django.views.generic2.base import GenericView
+from class_based_views.base import GenericView
 
 class ListView(GenericView):
     """

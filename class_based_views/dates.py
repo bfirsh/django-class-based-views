@@ -3,7 +3,7 @@ import datetime
 from django.db import models
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
-from django.views.generic2 import ListView, DetailView
+from class_based_views import ListView, DetailView
 
 class DateView(ListView):
     """

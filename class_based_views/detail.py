@@ -1,7 +1,7 @@
 import re
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.http import Http404
-from django.views.generic2 import GenericView
+from class_based_views import GenericView
 
 class DetailView(GenericView):
     """
