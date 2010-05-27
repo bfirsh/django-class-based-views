@@ -1,7 +1,7 @@
 from models import Author, Book
-import class_based_views as generic
+import class_based_views
 
-class DictList(generic.ListView):
+class DictList(class_based_views.ListView):
     """A ListView that doesn't use a model."""
     items = [
         {'first': 'John', 'last': 'Lennon'},
@@ -9,14 +9,14 @@ class DictList(generic.ListView):
     ]
     template_name = 'tests/list.html'
 
-class AuthorList(generic.ListView):
+class AuthorList(class_based_views.ListView):
     queryset = Author.objects.all()
     template_name = 'tests/list.html'
 
-class AuthorDetail(generic.DetailView):
+class AuthorDetail(class_based_views.DetailView):
     queryset = Author.objects.all()
 
-class ObjectDetail(generic.DetailView):
+class ObjectDetail(class_based_views.DetailView):
     template_name = 'tests/detail.html'
     def get_object(self, request, **kwargs):
         return {'foo': 'bar'}
@@ -25,23 +25,23 @@ class BookConfig(object):
     queryset = Book.objects.all()
     date_field = 'pubdate'
 
-class BookArchive(BookConfig, generic.ArchiveView):
+class BookArchive(BookConfig, class_based_views.ArchiveView):
     pass
 
-class BookYearArchive(BookConfig, generic.YearView):
+class BookYearArchive(BookConfig, class_based_views.YearView):
     pass
 
-class BookMonthArchive(BookConfig, generic.MonthView):
+class BookMonthArchive(BookConfig, class_based_views.MonthView):
     pass
 
-class BookWeekArchive(BookConfig, generic.WeekView):
+class BookWeekArchive(BookConfig, class_based_views.WeekView):
     pass
 
-class BookDayArchive(BookConfig, generic.DayView):
+class BookDayArchive(BookConfig, class_based_views.DayView):
     pass
 
-class BookTodayArchive(BookConfig, generic.TodayView):
+class BookTodayArchive(BookConfig, class_based_views.TodayView):
     pass
 
-class BookDetail(BookConfig, generic.DateDetailView):
+class BookDetail(BookConfig, class_based_views.DateDetailView):
     pass
