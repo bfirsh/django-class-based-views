@@ -14,12 +14,14 @@ urlpatterns = patterns('',
     # DetailView
     (r'^detail/obj/$',                            views.ObjectDetail()),
     url(r'^detail/author/(?P<pk>\d+)/$',          views.AuthorDetail(), name="author_detail"),
+    (r'^detail/author/(?P<pk>\d+)/restricted/$',  views.AuthorDetailRestricted()),
     (r'^detail/author/byslug/(?P<slug>[\w-]+)/$', views.AuthorDetail()),
     (r'^detail/author/invalid/url/$',             views.AuthorDetail()),
     (r'^detail/author/invalid/qs/$',              views.AuthorDetail(queryset=None)),
 
     # EditView
     (r'^edit/authors/create/$',                   views.AuthorCreate()),
+    (r'^edit/authors/create/restricted/$',        views.AuthorCreateRestricted()),
     (r'^edit/author/(?P<pk>\d+)/update/$',        views.AuthorUpdate()),
     (r'^edit/author/(?P<pk>\d+)/delete/$',        views.AuthorDelete()),
 
@@ -67,4 +69,7 @@ urlpatterns = patterns('',
     (r'^dates/books/(\d{4})/([a-z]{3})/(\d{1,2})/nopk/$',               views.BookDetail()),
 
     (r'^dates/books/(?P<year>\d{4})/(?P<month>[a-z]{3})/(?P<day>\d{1,2})/byslug/(?P<slug>[\w-]+)/$', views.BookDetail()),
+
+    # Useful for testing redirects
+    (r'^accounts/login/$',  'django.contrib.auth.views.login')
 )

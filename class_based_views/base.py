@@ -14,6 +14,7 @@ class GenericView(object):
             mimetype = 'text/html',
             template_loader = None,
             template_name = None,
+            decorators = None,
             methods = ['GET',],
             restriction_message = _('Restricted page.'),
             warning_message = _('You must define "%s" method.'),
@@ -30,6 +31,10 @@ class GenericView(object):
             method = getattr(self, method_name)
         except AttributeError:
             return HttpResponseNotAllowed(self.warning_message % method_name)
+
+        if self.decorators is not None:
+            for decorator in reversed(self.decorators):
+                method = decorator(method)
         return method(request, obj, *args, **kwargs)
 
     def get(self, request, obj, *args, **kwargs):

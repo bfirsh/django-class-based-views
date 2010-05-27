@@ -1,4 +1,6 @@
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 from models import Author, Book
 from forms import AuthorForm
@@ -19,6 +21,9 @@ class AuthorList(class_based_views.ListView):
 class AuthorDetail(class_based_views.DetailView):
     queryset = Author.objects.all()
 
+class AuthorDetailRestricted(AuthorDetail):
+    decorators = [login_required, ]
+
 class AuthorCreate(class_based_views.CreateView):
     queryset = Author.objects.all()
     template_name = 'tests/list.html'
@@ -32,6 +37,10 @@ class AuthorCreate(class_based_views.CreateView):
 
     def redirect_to(self, request, obj):
         return reverse('authors_list')
+
+
+class AuthorCreateRestricted(AuthorCreate):
+    post = method_decorator(login_required)(AuthorCreate.post)
 
 
 class AuthorUpdate(class_based_views.UpdateView):

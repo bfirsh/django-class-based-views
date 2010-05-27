@@ -115,6 +115,11 @@ class DetailViewTests(TestCase):
         self.assertEqual(res.context['author'], Author.objects.get(pk=1))
         self.assertTemplateUsed(res, 'tests/author_detail.html')
 
+    def test_detail_by_pk_restricted(self):
+        res = self.client.get('/detail/author/1/restricted/')
+        self.assertEqual(res.status_code, 302)
+        self.assertRedirects(res, 'http://testserver/accounts/login/?next=/detail/author/1/restricted/')
+
     def test_detail_by_slug(self):
         res = self.client.get('/detail/author/byslug/scott-rosenberg/')
         self.assertEqual(res.status_code, 200)
@@ -140,6 +145,16 @@ class EditViewTests(TestCase):
                         {'name': 'Randall Munroe', 'slug': 'randall-munroe'})
         self.assertEqual(res.status_code, 302)
         self.assertEqual(str(Author.objects.all()), "[<Author: Randall Munroe>]")
+
+    def test_restricted_create_restricted(self):
+        res = self.client.get('/edit/authors/create/')
+        self.assertEqual(res.status_code, 200)
+        self.assertTemplateUsed(res, 'tests/list.html')
+
+        res = self.client.post('/edit/authors/create/restricted/',
+                        {'name': 'Randall Munroe', 'slug': 'randall-munroe'})
+        self.assertEqual(res.status_code, 302)
+        self.assertRedirects(res, 'http://testserver/accounts/login/?next=/edit/authors/create/restricted/')
 
     def test_update(self):
         Author.objects.create(**{'name': 'Randall Munroe', 'slug': 'randall-munroe'})
