@@ -30,6 +30,10 @@ class CreateView(ListView, FormView):
 class UpdateView(DetailView, FormView):
     def put(self, request, obj, *args, **kwargs):
         obj = self.get_object(request, *args, **kwargs)
+        # Force evaluation to populate PUT
+        request.POST
+        request.PUT = request._post
+        del request._post
         return self.post(request, obj, *args, **kwargs)
 
 

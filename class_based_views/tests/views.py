@@ -40,10 +40,6 @@ class AuthorUpdate(class_based_views.UpdateView):
     methods = ['GET', 'POST', 'PUT']
 
     def get_form(self, request, obj, *args, **kwargs):
-        if request.method == "PUT":
-            request.POST # force evaluation
-            request.PUT = request._post
-            del request._post
         return AuthorForm(request.REQUEST or None)
 
     def process_form(self, request, obj, data):
@@ -53,6 +49,15 @@ class AuthorUpdate(class_based_views.UpdateView):
 
     def redirect_to(self, request, obj):
         return reverse('author_detail', args=[obj.id,])
+
+
+class AuthorDelete(class_based_views.DeleteView):
+    queryset = Author.objects.all()
+    template_name = 'tests/detail.html'
+    methods = ['GET', 'POST', 'DELETE']
+
+    def redirect_to(self, request, obj):
+        return reverse('authors_list')
 
 
 class ObjectDetail(class_based_views.DetailView):

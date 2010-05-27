@@ -21,6 +21,7 @@ urlpatterns = patterns('',
     # EditView
     (r'^edit/authors/create/$',                   views.AuthorCreate()),
     (r'^edit/author/(?P<pk>\d+)/update/$',        views.AuthorUpdate()),
+    (r'^edit/author/(?P<pk>\d+)/delete/$',        views.AuthorDelete()),
 
     # ArchiveView
     (r'^dates/books/$',         views.BookArchive()),

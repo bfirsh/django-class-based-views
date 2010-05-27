@@ -147,6 +147,7 @@ class EditViewTests(TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, 'tests/detail.html')
 
+        # Modification with both POST and PUT (browser compatible)
         res = self.client.post('/edit/author/1/update/',
                         {'name': 'Randall Munroe (xkcd)', 'slug': 'randall-munroe'})
         self.assertEqual(res.status_code, 302)
@@ -156,6 +157,22 @@ class EditViewTests(TestCase):
                         {'name': 'Randall Munroe (xkcd)', 'slug': 'randall-munroe-xkcd'})
         self.assertEqual(res.status_code, 302)
         self.assertEqual(Author.objects.get(id=1).slug, 'randall-munroe-xkcd')
+
+    def test_delete(self):
+        Author.objects.create(**{'name': 'Randall Munroe', 'slug': 'randall-munroe'})
+        res = self.client.get('/edit/author/1/delete/')
+        self.assertEqual(res.status_code, 200)
+        self.assertTemplateUsed(res, 'tests/detail.html')
+
+        # Deletion with both POST and DELETE (browser compatible)
+        res = self.client.post('/edit/author/1/delete/')
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(str(Author.objects.all()), '[]')
+
+        Author.objects.create(**{'name': 'Randall Munroe', 'slug': 'randall-munroe'})
+        res = self.client.delete('/edit/author/1/delete/')
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(str(Author.objects.all()), '[]')
 
 
 class ArchiveViewTests(TestCase):
