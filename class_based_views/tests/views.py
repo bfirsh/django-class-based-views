@@ -40,7 +40,11 @@ class AuthorUpdate(class_based_views.UpdateView):
     methods = ['GET', 'POST', 'PUT']
 
     def get_form(self, request, obj, *args, **kwargs):
-        return AuthorForm(request.POST or None)
+        if request.method == "PUT":
+            request.POST # force evaluation
+            request.PUT = request._post
+            del request._post
+        return AuthorForm(request.REQUEST or None)
 
     def process_form(self, request, obj, data):
         for k, v in data.iteritems():

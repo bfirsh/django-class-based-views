@@ -152,10 +152,10 @@ class EditViewTests(TestCase):
         self.assertEqual(res.status_code, 302)
         self.assertEqual(str(Author.objects.all()), "[<Author: Randall Munroe (xkcd)>]")
 
-        #res = self.client.put('/edit/author/1/update/',
-        #                {'name': 'Randall Munroe (xkcd)', 'slug': 'randall-munroe-xkcd'})
-        #self.assertEqual(res.status_code, 302)
-        #self.assertEqual(Author.objects.get(id=1).slug, 'randall-munroe-xkcd')
+        res = self.client.put('/edit/author/1/update/',
+                        {'name': 'Randall Munroe (xkcd)', 'slug': 'randall-munroe-xkcd'})
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(Author.objects.get(id=1).slug, 'randall-munroe-xkcd')
 
 
 class ArchiveViewTests(TestCase):
