@@ -2,9 +2,9 @@ from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
 from django.utils.encoding import smart_str
-from class_based_views.base import GenericView
+from class_based_views.base import View
 
-class ListView(GenericView):
+class ListView(View):
     """
     Render some list of objects. This list may be any type via setting
     `self.items`, but if it's a queryset set on `self.queryset` then the

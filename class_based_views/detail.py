@@ -1,9 +1,9 @@
 import re
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.http import Http404
-from class_based_views import GenericView
+from class_based_views import View
 
-class DetailView(GenericView):
+class DetailView(View):
     """
     Render a "detail" view of an object.
 

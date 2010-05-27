@@ -1,7 +1,7 @@
 from django.http import HttpResponseRedirect
-from class_based_views import GenericView, ListView, DetailView
+from class_based_views import View, ListView, DetailView
 
-class FormView(GenericView):
+class FormView(View):
     def post(self, request, obj, *args, **kwargs):
         form = self.get_form(request, obj, *args, **kwargs)
         if form.is_valid():

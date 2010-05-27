@@ -3,9 +3,9 @@ from django.http import HttpResponse, HttpResponseNotAllowed
 from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
 
-class GenericView(object):
+class View(object):
     """
-    Parent class for all generic views.
+    Parent class for all views.
     """
 
     def __init__(self, **kwargs):
