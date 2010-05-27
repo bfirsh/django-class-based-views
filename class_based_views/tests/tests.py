@@ -128,6 +128,20 @@ class DetailViewTests(TestCase):
     def test_invalid_queryset(self):
         self.assertRaises(ImproperlyConfigured, self.client.get, '/detail/author/invalid/qs/')
 
+class EditViewTests(TestCase):
+    fixtures = ['generic-views-test-data.json']
+    urls = 'class_based_views.tests.urls'
+
+    def test_creation(self):
+        res = self.client.get('/edit/authors/create/')
+        self.assertEqual(res.status_code, 200)
+        self.assertTemplateUsed(res, 'tests/list.html')
+
+        res = self.client.post('/edit/authors/create/',
+                        {'name': 'Randall Munroe', 'slug': 'randall-munroe'})
+        self.assertEqual(res.status_code, 302)
+
+
 class ArchiveViewTests(TestCase):
     fixtures = ['generic-views-test-data.json']
     urls = 'class_based_views.tests.urls'

@@ -1,4 +1,7 @@
+from django.core.urlresolvers import reverse
+
 from models import Author, Book
+from forms import AuthorForm
 import class_based_views
 
 class DictList(class_based_views.ListView):
@@ -14,6 +17,24 @@ class AuthorList(class_based_views.ListView):
     template_name = 'tests/list.html'
 
 class AuthorDetail(class_based_views.DetailView):
+    queryset = Author.objects.all()
+
+class AuthorCreate(class_based_views.CreateView):
+    queryset = Author.objects.all()
+    template_name = 'tests/list.html'
+    methods = ['GET', 'POST']
+
+    def get_form(self, request, obj, *args, **kwargs):
+        return AuthorForm(request.POST or None)
+
+    def process_form(self, request, obj, data):
+        Author.objects.create(**data)
+
+    def redirect_to(self, request, obj):
+        return reverse('authors_list')
+
+
+class AuthorUpdate(class_based_views.UpdateView):
     queryset = Author.objects.all()
 
 class ObjectDetail(class_based_views.DetailView):
