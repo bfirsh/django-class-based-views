@@ -14,14 +14,18 @@ class View(object):
             mimetype = 'text/html',
             template_loader = None,
             template_name = None,
+            decorators = None,
         )
         if kwargs:
             raise TypeError("__init__() got an unexpected keyword argument '%s'" % iter(kwargs).next())
 
     def __call__(self, request, *args, **kwargs):
         method = getattr(self, request.method.lower(), 'get')
+        if self.decorators is not None:
+            for decorator in reversed(self.decorators):
+                method = decorator(method)
         return method(request, *args, **kwargs)
-
+    
     def get(self, request, *args, **kwargs):
         obj = self.get_object(request, *args, **kwargs)
         template = self.get_template(request, obj)

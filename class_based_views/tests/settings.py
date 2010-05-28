@@ -8,3 +8,4 @@ INSTALLED_APPS = [
     'class_based_views',
     'class_based_views.tests',
 ]
+SITE_ID = 1
