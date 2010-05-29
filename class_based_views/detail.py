@@ -10,15 +10,11 @@ class DetailView(View):
     By default this is a model instance lookedup from `self.queryset`, but the
     view will support display of *any* object by overriding `get_object()`.
     """
-
-    def __init__(self, **kwargs):
-        self._load_config_values(kwargs,
-            queryset = None,
-            slug_field = 'slug',
-            template_object_name = None,
-            template_name_field = None,
-        )
-        super(DetailView, self).__init__(**kwargs)
+    
+    queryset = None
+    slug_field = 'slug'
+    template_object_name = None
+    template_name_field = None
 
     def get_object(self, request, pk=None, slug=None, object_id=None, queryset=None):
         """

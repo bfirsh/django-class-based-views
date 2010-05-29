@@ -10,18 +10,14 @@ class ListView(View):
     `self.items`, but if it's a queryset set on `self.queryset` then the
     queryset will be handled correctly.
     """
+    
+    paginate_by = None
+    allow_empty = True
+    template_object_name = None
+    queryset = None
+    items = None
 
-    def __init__(self, **kwargs):
-        self._load_config_values(kwargs,
-            paginate_by = None,
-            allow_empty = True,
-            template_object_name = None,
-            queryset = None,
-            items = None,
-        )
-        super(ListView, self).__init__(**kwargs)
-
-    def get(self, request, *args, **kwargs):
+    def GET(self, request, *args, **kwargs):
         page = kwargs.get('page', None)
         paginator, page, items = self.get_items(request, page)
         template = self.get_template(request, items)
@@ -40,7 +36,7 @@ class ListView(View):
         elif hasattr(self, 'items') and self.items is not None:
             items = self.items
         else:
-            raise ImproperlyConfigured("'%s' must define 'queryset' or 'items'" \
+            raise ImproperlyConfigured("'%s' must define 'queryset' or 'items'"
                                             % self.__class__.__name__)
 
         return self.paginate_items(request, items, page)
@@ -118,21 +114,6 @@ class ListView(View):
         template_obj_name = self.get_template_object_name(request, items)
         if template_obj_name:
             context[template_obj_name] = items
-
-        # If we're paginated, populate the context with legacy pagination
-        # stuff. In 1.2 `legacy_context` will default to False, and in 1.3
-        # these context variables will be removed.
-        if paginator is not None and getattr(self, 'legacy_context', True):
-            import warnings
-            warnings.warn(
-                "'%(cls)s' is using legacy context variables which will be "\
-                "removed in a future version of Django. Set "\
-                "'%(cls)s.legacy_content' to False to stop using these "\
-                "context variables." % {'cls': self.__class__.__name__},
-                PendingDeprecationWarning
-            )
-            context.update(self._get_legacy_paginated_context(paginator, page))
-
         return context
 
     def get_template_object_name(self, request, items):
@@ -145,23 +126,4 @@ class ListView(View):
             return smart_str(items.model._meta.verbose_name_plural)
         else:
             return None
-
-    def _get_legacy_paginated_context(self, paginator, page):
-        """
-        Legacy template context stuff. New templates should use page_obj
-        to access this instead.
-        """
-        return {
-            'is_paginated': page.has_other_pages(),
-            'results_per_page': paginator.per_page,
-            'has_next': page.has_next(),
-            'has_previous': page.has_previous(),
-            'page': page.number,
-            'next': page.next_page_number(),
-            'previous': page.previous_page_number(),
-            'first_on_page': page.start_index(),
-            'last_on_page': page.end_index(),
-            'pages': paginator.num_pages,
-            'hits': paginator.count,
-            'page_range': paginator.page_range,
-        }
+    

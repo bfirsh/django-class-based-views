@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect
 from class_based_views import View, ListView, DetailView
 
 class FormView(View):
-    def post(self, request, *args, **kwargs):
+    def POST(self, request, *args, **kwargs):
         obj = self.get_object(request, *args, **kwargs)
         form = self.get_form(request, obj, *args, **kwargs)
         if form.is_valid():
