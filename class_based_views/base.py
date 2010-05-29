@@ -1,3 +1,4 @@
+import copy
 from django import http
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
@@ -9,29 +10,33 @@ class View(object):
     Parent class for all views.
     """
     
-    template_name = None
-    context_processors = None
-    template_loader = None
-    decorators = None
-    allowed_methods = ['GET', 'POST']
-    strict_allowed_methods = False
-    allowed_formats = ['html']
-    format_mimetypes = {
-        'html': 'text/html'
-    }
-    default_format = 'html'
-    
     def __init__(self, *args, **kwargs):
-        self._has_been_called = False
-        super(View, self).__init__(*args, **kwargs)
+        # TODO: Check if request is in *args and raise warning
+        
+        self._load_config_values(kwargs,
+            context_processors = None,
+            mimetype = 'text/html',
+            template_loader = None,
+            template_name = None,
+            decorators = [],
+            allowed_methods = ['GET',],
+            strict_allowed_methods = False,
+            allowed_formats = ['html',],
+            default_format = 'html',
+            format_mimetypes = {
+                'html': 'text/html'
+            },
+        )
+        if kwargs:
+            raise TypeError("__init__() got an unexpected keyword argument '%s'" % iter(kwargs).next())
     
     def __call__(self, request, *args, **kwargs):
-        self._check_has_been_called()
-        self.request = request
-        callback = self.get_callback()
+        view = copy.copy(self)
+        view.request = request
+        callback = view.get_callback()
         if callback:
             return callback(*args, **kwargs)
-        allowed_methods = [m for m in self.allowed_methods if hasattr(self, m)]
+        allowed_methods = [m for m in view.allowed_methods if hasattr(view, m)]
         return http.HttpResponseNotAllowed(allowed_methods)
     
     def get_callback(self):
@@ -63,13 +68,12 @@ class View(object):
         """
         return http.HttpResponse(content, **httpresponse_kwargs)
     
-    def get_content(self):
+    def get_content(self, *args, **kwargs):
         """
         Get the content to go in the response.
         """
         format = self.get_format()
-        resource = self.get_resource()
-        return getattr(self, 'render_%s' % format)(resource)
+        return getattr(self, 'render_%s' % format)(*args, **kwargs)
     
     def get_resource(self, *args, **kwargs):
         """
@@ -95,11 +99,11 @@ class View(object):
             format = self.default_format
         return format
     
-    def render_html(self, resource):
+    def render_html(self, *args, **kwargs):
         """
         Render a template with a given resource
         """
-        return self.get_template().render(self.get_context())
+        return self.get_template().render(self.get_context(*args, **kwargs))
     
     def get_template(self):
         """
@@ -159,4 +163,14 @@ class View(object):
                     'class': self.__class__.__name__
                 })
         self._has_been_called = True
+    
+    def _load_config_values(self, initkwargs, **defaults):
+        """
+        Set on self some config values possibly taken from __init__, or
+        attributes on self.__class__, or some default.
+        """
+        for k in defaults:
+            default = getattr(self.__class__, k, defaults[k])
+            value = initkwargs.pop(k, default)
+            setattr(self, k, value)
     
