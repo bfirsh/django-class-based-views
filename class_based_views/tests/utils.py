@@ -1,6 +1,5 @@
 from django.test import Client
 from django.core.handlers.wsgi import WSGIRequest
-import unittest
 
 class RequestFactory(Client):
     """
@@ -39,10 +38,4 @@ class RequestFactory(Client):
         environ.update(self.defaults)
         environ.update(request)
         return WSGIRequest(environ)
-    
-
-class TestCase(unittest.TestCase):
-    def __call__(self, *args, **kwargs):
-        self.rf = RequestFactory()
-        super(TestCase, self).__call__(*args, **kwargs)
     

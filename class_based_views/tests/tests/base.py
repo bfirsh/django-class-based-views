@@ -1,7 +1,8 @@
 from class_based_views.base import View
-from class_based_views.tests.utils import TestCase
+from class_based_views.tests.utils import RequestFactory
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import simplejson
+import unittest
 
 class AboutView(View):
     template_name = 'views/about.html'
@@ -61,7 +62,9 @@ class ContextProcessorJsonView(JsonView):
     ]
     
 
-class ViewTest(TestCase):
+class ViewTest(unittest.TestCase):
+    rf = RequestFactory()
+    
     def _assert_about(self, response):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, '<h1>About</h1>')
