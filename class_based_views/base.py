@@ -103,7 +103,8 @@ class View(object):
         """
         Render a template with a given resource
         """
-        return self.get_template().render(self.get_context(*args, **kwargs))
+        context = self.get_context(*args, **kwargs)
+        return self.get_template().render(context)
     
     def get_template(self):
         """
