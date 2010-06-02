@@ -3,6 +3,7 @@ from django import http
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.template import RequestContext
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 
 class View(object):
@@ -32,19 +33,21 @@ class View(object):
     
     def __call__(self, request, *args, **kwargs):
         view = copy.copy(self)
-        view.request = request
-        callback = view.get_callback()
+        view.request = request # FIXME: Maybe remove? Should this be encouraged?
+        callback = view.get_callback(request)
         if callback:
-            return callback(*args, **kwargs)
+            # The request is passed around with args and kwargs like this so 
+            # they appear as views for decorators
+            return callback(request, *args, **kwargs)
         allowed_methods = [m for m in view.allowed_methods if hasattr(view, m)]
         return http.HttpResponseNotAllowed(allowed_methods)
     
-    def get_callback(self):
+    def get_callback(self, request):
         """
         Based on the request's HTTP method, get the callback on this class that 
         returns a response. If the method isn't allowed, None is returned.
         """
-        method = self.request.method.upper()
+        method = request.method.upper()
         if method not in self.allowed_methods:
             if self.strict_allowed_methods:
                 return None
@@ -57,8 +60,8 @@ class View(object):
                     callback = decorator(callback)
         return callback
     
-    def GET(self, *args, **kwargs):
-        content = self.get_content(*args, **kwargs)
+    def GET(self, request, *args, **kwargs):
+        content = self.get_content(request, *args, **kwargs)
         mimetype = self.get_mimetype()
         return self.get_response(content, mimetype=mimetype)
     
@@ -68,14 +71,14 @@ class View(object):
         """
         return http.HttpResponse(content, **httpresponse_kwargs)
     
-    def get_content(self, *args, **kwargs):
+    def get_content(self, request, *args, **kwargs):
         """
         Get the content to go in the response.
         """
         format = self.get_format()
-        return getattr(self, 'render_%s' % format)(*args, **kwargs)
+        return getattr(self, 'render_%s' % format)(request, *args, **kwargs)
     
-    def get_resource(self, *args, **kwargs):
+    def get_resource(self, request, *args, **kwargs):
         """
         Get a dictionary representing the resource for this view.
         """
@@ -99,11 +102,11 @@ class View(object):
             format = self.default_format
         return format
     
-    def render_html(self, *args, **kwargs):
+    def render_html(self, request, *args, **kwargs):
         """
         Render a template with a given resource
         """
-        context = self.get_context(*args, **kwargs)
+        context = self.get_context(request, *args, **kwargs)
         return self.get_template().render(context)
     
     def get_template(self):
@@ -142,13 +145,13 @@ class View(object):
         import django.template.loader
         return self.template_loader or django.template.loader
     
-    def get_context(self, *args, **kwargs):
+    def get_context(self, request, *args, **kwargs):
         """
         Get the template context. Must return a Context (or subclass) instance.
         """
-        resource = self.get_resource(*args, **kwargs)
+        resource = self.get_resource(request, *args, **kwargs)
         context_processors = self.get_context_processors()
-        return RequestContext(self.request, resource, context_processors)
+        return RequestContext(request, resource, context_processors)
     
     def get_context_processors(self):
         """

@@ -1,11 +1,12 @@
 from class_based_views.base import View
 from class_based_views.tests.utils import RequestFactory
 from django.core.exceptions import ImproperlyConfigured
+from django.test import TestCase
 from django.utils import simplejson
 import unittest
 
 class AboutView(View):
-    template_name = 'views/about.html'
+    template_name = 'tests/about.html'
     
 
 class PostAboutView(AboutView):
@@ -14,33 +15,33 @@ class PostAboutView(AboutView):
 
 class StrictAboutView(AboutView):
     strict_allowed_methods = True
-    
+
 
 class HashView(View):
-    def get_content(self):
+    def get_content(self, request):
         return unicode(hash(self))
     
 
 class JsonView(View):
-    template_name = 'views/apple_detail.html'
+    template_name = 'tests/apple_detail.html'
     
     def __init__(self, *args, **kwargs):
         super(JsonView, self).__init__(*args, **kwargs)
         self.allowed_formats.append('json')
         self.format_mimetypes['json'] = 'application/json'
     
-    def render_json(self, *args, **kwargs):
-        return simplejson.dumps(self.get_resource(*args, **kwargs))
+    def render_json(self, request, *args, **kwargs):
+        return simplejson.dumps(self.get_resource(request, *args, **kwargs))
     
-    def get_resource(self, color='red', **kwargs):
+    def get_resource(self, request, color='red', **kwargs):
         return {'apple': {
             'color': color,
         }}
     
 
 class ContextArgsJsonView(JsonView):
-    def get_context(self, extra='', **kwargs):
-        context = super(ContextArgsJsonView, self).get_context()
+    def get_context(self, request, extra='', **kwargs):
+        context = super(ContextArgsJsonView, self).get_context(request)
         context['extra'] = extra
         return context
     
@@ -50,8 +51,8 @@ class DefaultJsonView(JsonView):
 
 
 class ContextJsonView(JsonView):
-    def get_context(self, *args, **kwargs):
-        context = super(ContextJsonView, self).get_context(*args, **kwargs)
+    def get_context(self, request, *args, **kwargs):
+        context = super(ContextJsonView, self).get_context(request, *args, **kwargs)
         context['tasty'] = True
         return context
     
@@ -191,4 +192,16 @@ class ViewTest(unittest.TestCase):
             response.content,
             'This is a red apple. That is good'
         )
+
+class DecoratorViewTest(TestCase):
+    urls = 'class_based_views.tests.urls'
+    
+    def test_decorators(self):
+        """
+        Test any decorators applied with the ``decorators`` attribute are 
+        applied.
+        """
+        res = self.client.get('/about/login-required/')
+        self.assertEqual(res.status_code, 302)
+        self.assertRedirects(res, 'http://testserver/accounts/login/?next=/about/login-required/')
     
