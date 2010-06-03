@@ -159,15 +159,6 @@ class View(object):
         """
         return self.context_processors
     
-    def _check_has_been_called(self):
-        if self._has_been_called:
-            raise ImproperlyConfigured("'%(class)s' has been instantiated in "
-                "the URLconf. Class-based views should only be passed as "
-                "classes. Try changing '%(class)s()' to '%(class)s'." % {
-                    'class': self.__class__.__name__
-                })
-        self._has_been_called = True
-    
     def _load_config_values(self, initkwargs, **defaults):
         """
         Set on self some config values possibly taken from __init__, or
