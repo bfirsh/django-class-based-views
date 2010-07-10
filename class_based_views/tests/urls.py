@@ -6,11 +6,11 @@ urlpatterns = patterns('',
     (r'^about/login-required/$', views.DecoratedAboutView()),
     
     # DetailView
-    (r'^detail/obj/$',                            views.ObjectDetail()),
-    url(r'^detail/author/(?P<pk>\d+)/$',          views.AuthorDetail(), name="author_detail"),
+    (r'^detail/obj/$', views.ObjectDetail()),
+    url(r'^detail/author/(?P<pk>\d+)/$', views.AuthorDetail(), name="author_detail"),
     (r'^detail/author/byslug/(?P<slug>[\w-]+)/$', views.AuthorDetail()),
-    (r'^detail/author/invalid/url/$',             views.AuthorDetail()),
-    (r'^detail/author/invalid/qs/$',              views.AuthorDetail(queryset=None)),
+    (r'^detail/author/invalid/url/$', views.AuthorDetail()),
+    (r'^detail/author/invalid/qs/$', views.AuthorDetail(queryset=None)),
 
     # # EditView
     #     (r'^edit/authors/create/$',                   views.AuthorCreate()),
@@ -22,14 +22,14 @@ urlpatterns = patterns('',
     #     (r'^dates/books/$',         views.BookArchive()),
     #     (r'^dates/books/invalid/$', views.BookArchive(queryset=None)),
     #     
-    #     # ListView
-    #     (r'^list/dict/$',                            views.DictList()),
-    #     url(r'^list/authors/$',                      views.AuthorList(), name="authors_list"),
-    #     (r'^list/authors/paginated/$',               views.AuthorList(paginate_by=30)),
-    #     (r'^list/authors/paginated/(?P<page>\d+)/$', views.AuthorList(paginate_by=30)),
-    #     (r'^list/authors/notempty/$',                views.AuthorList(allow_empty=False)),
-    #     (r'^list/authors/template_object_name/$',    views.AuthorList(template_object_name='author')),
-    #     (r'^list/authors/invalid/$',                 views.AuthorList(queryset=None)),
+    # ListView
+    (r'^list/dict/$', views.DictList()),
+    url(r'^list/authors/$', views.AuthorList(), name="authors_list"),
+    (r'^list/authors/paginated/$', views.AuthorList(paginate_by=30)),
+    (r'^list/authors/paginated/(?P<page>\d+)/$', views.AuthorList(paginate_by=30)),
+    (r'^list/authors/notempty/$', views.AuthorList(allow_empty=False)),
+    (r'^list/authors/template_object_name/$', views.AuthorList(template_resource_name='author')),
+    (r'^list/authors/invalid/$', views.AuthorList(queryset=None)),
     #     
     #     # YearView
     #     # Mixing keyword and possitional captures below is intentional; the views

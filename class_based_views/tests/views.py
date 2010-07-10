@@ -22,18 +22,18 @@ class DecoratedAboutView(class_based_views.View):
     decorators = [login_required,]
 
 
+class DictList(class_based_views.ListView):
+    """A ListView that doesn't use a model."""
+    items = [
+        {'first': 'John', 'last': 'Lennon'},
+        {'last': 'Yoko',  'last': 'Ono'}
+    ]
+    template_name = 'tests/list.html'
 
-# class DictList(class_based_views.ListView):
-#     """A ListView that doesn't use a model."""
-#     items = [
-#         {'first': 'John', 'last': 'Lennon'},
-#         {'last': 'Yoko',  'last': 'Ono'}
-#     ]
-#     template_name = 'tests/list.html'
-# 
-# class AuthorList(class_based_views.ListView):
-#     queryset = Author.objects.all()
-#     template_name = 'tests/list.html'
+
+class AuthorList(class_based_views.ListView):
+    queryset = Author.objects.all()
+    template_name = 'tests/list.html'
 
 
 
