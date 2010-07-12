@@ -65,30 +65,12 @@ class View(object):
         mimetype = self.get_mimetype()
         return self.get_response(content, mimetype=mimetype)
     
-    def get_response(self, content, **httpresponse_kwargs):
-        """
-        Construct an `HttpResponse` object.
-        """
-        return http.HttpResponse(content, **httpresponse_kwargs)
-    
     def get_content(self, request, *args, **kwargs):
         """
         Get the content to go in the response.
         """
         format = self.get_format()
         return getattr(self, 'render_%s' % format)(request, *args, **kwargs)
-    
-    def get_resource(self, request, *args, **kwargs):
-        """
-        Get a dictionary representing the resource for this view.
-        """
-        return {}
-    
-    def get_mimetype(self):
-        """
-        Get the mimetype to be used for the response.
-        """
-        return self.format_mimetypes[self.get_format()]
     
     def get_format(self):
         """
@@ -102,12 +84,44 @@ class View(object):
             format = self.default_format
         return format
     
+    def get_mimetype(self):
+        """
+        Get the mimetype to be used for the response.
+        """
+        return self.format_mimetypes[self.get_format()]
+    
+    def get_response(self, content, **httpresponse_kwargs):
+        """
+        Construct an `HttpResponse` object.
+        """
+        return http.HttpResponse(content, **httpresponse_kwargs)
+    
+    def get_resource(self, request, *args, **kwargs):
+        """
+        Get a dictionary representing the resource for this view.
+        """
+        return {}
+    
     def render_html(self, request, *args, **kwargs):
         """
         Render a template with a given resource
         """
         context = self.get_context(request, *args, **kwargs)
         return self.get_template().render(context)
+    
+    def get_context(self, request, *args, **kwargs):
+        """
+        Get the template context. Must return a Context (or subclass) instance.
+        """
+        resource = self.get_resource(request, *args, **kwargs)
+        context_processors = self.get_context_processors()
+        return RequestContext(request, resource, context_processors)
+    
+    def get_context_processors(self):
+        """
+        Get the template context processors to be used.
+        """
+        return self.context_processors
     
     def get_template(self):
         """
@@ -144,20 +158,6 @@ class View(object):
         """
         import django.template.loader
         return self.template_loader or django.template.loader
-    
-    def get_context(self, request, *args, **kwargs):
-        """
-        Get the template context. Must return a Context (or subclass) instance.
-        """
-        resource = self.get_resource(request, *args, **kwargs)
-        context_processors = self.get_context_processors()
-        return RequestContext(request, resource, context_processors)
-    
-    def get_context_processors(self):
-        """
-        Get the template context processors to be used.
-        """
-        return self.context_processors
     
     def _load_config_values(self, initkwargs, **defaults):
         """
