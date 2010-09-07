@@ -4,6 +4,10 @@ from django.http import Http404
 import re
 
 class SingleObjectMixin(object):
+    """
+    Provides a get_object() method.
+    """
+    
     queryset = None
     slug_field = 'slug'
     

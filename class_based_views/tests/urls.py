@@ -12,12 +12,12 @@ urlpatterns = patterns('',
     (r'^detail/author/invalid/url/$', views.AuthorDetail()),
     (r'^detail/author/invalid/qs/$', views.AuthorDetail(queryset=None)),
 
-    # # EditView
-    #     (r'^edit/authors/create/$',                   views.AuthorCreate()),
-    #     (r'^edit/authors/create/restricted/$',        views.AuthorCreateRestricted()),
-    #     (r'^edit/author/(?P<pk>\d+)/update/$',        views.AuthorUpdate()),
-    #     (r'^edit/author/(?P<pk>\d+)/delete/$',        views.AuthorDelete()),
-    # 
+    # EditView
+    (r'^edit/authors/create/$', views.AuthorCreate()),
+    (r'^edit/authors/create/restricted/$', views.AuthorCreateRestricted()),
+    (r'^edit/author/(?P<pk>\d+)/update/$', views.AuthorUpdate()),
+    (r'^edit/author/(?P<pk>\d+)/delete/$', views.AuthorDelete()),
+    
     #     # ArchiveView
     #     (r'^dates/books/$',         views.BookArchive()),
     #     (r'^dates/books/invalid/$', views.BookArchive(queryset=None)),

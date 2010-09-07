@@ -41,49 +41,34 @@ class PaginatedAuthorList(class_based_views.PaginatedListView):
     template_name = 'tests/list.html'
 
 
-# class AuthorCreate(class_based_views.CreateView):
-#     queryset = Author.objects.all()
-#     template_name = 'tests/list.html'
-#     methods = ['GET', 'POST']
-# 
-#     def get_form(self, request, obj, *args, **kwargs):
-#         return AuthorForm(request.POST or None)
-# 
-#     def process_form(self, request, obj, data):
-#         Author.objects.create(**data)
-# 
-#     def redirect_to(self, request, obj):
-#         return reverse('authors_list')
-# 
-# 
-# class AuthorCreateRestricted(AuthorCreate):
-#     post = method_decorator(login_required)(AuthorCreate.post)
-# 
-# 
-# class AuthorUpdate(class_based_views.UpdateView):
-#     queryset = Author.objects.all()
-#     template_name = 'tests/detail.html'
-#     methods = ['GET', 'POST', 'PUT']
-# 
-#     def get_form(self, request, obj, *args, **kwargs):
-#         return AuthorForm(request.REQUEST or None)
-# 
-#     def process_form(self, request, obj, data):
-#         for k, v in data.iteritems():
-#             setattr(obj, k, v)
-#         obj.save()
-# 
-#     def redirect_to(self, request, obj):
-#         return reverse('author_detail', args=[obj.id,])
-# 
-# 
-# class AuthorDelete(class_based_views.DeleteView):
-#     queryset = Author.objects.all()
-#     template_name = 'tests/detail.html'
-#     methods = ['GET', 'POST', 'DELETE']
-# 
-#     def redirect_to(self, request, obj):
-#         return reverse('authors_list')
+class AuthorCreate(class_based_views.CreateView):
+    form = AuthorForm
+    template_name = 'tests/list.html'
+    
+    def redirect_to(self, obj):
+        return reverse('authors_list')
+
+
+class AuthorCreateRestricted(AuthorCreate):
+    POST = method_decorator(login_required)(AuthorCreate.POST)
+
+
+class AuthorUpdate(class_based_views.UpdateView):
+    queryset = Author.objects.all()
+    form = AuthorForm
+    template_name = 'tests/detail.html'
+
+    def redirect_to(self, obj):
+        return reverse('author_detail', args=[obj.id,])
+
+
+class AuthorDelete(class_based_views.DeleteView):
+    queryset = Author.objects.all()
+    template_name = 'tests/detail.html'
+
+    def redirect_to(self, obj):
+        return reverse('authors_list')
+
 
 # class BookConfig(object):
 #     queryset = Book.objects.all()

@@ -1,53 +1,141 @@
 from django.http import HttpResponseRedirect
-from class_based_views import View, ListView, DetailView
+from class_based_views import ListView
+from class_based_views.base import TemplateView
+from class_based_views.detail import SingleObjectMixin, DetailView
 
-class FormView(View):
+class FormMixin(object):
+    """
+    A mixin that provides a get_form() method.
+    """
+    
+    initial = {}
+    form = None
+    
+    def get_form(self):
+        """
+        Returns the form to be used in this view.
+        """
+        if self.request.method == 'POST':
+            return self.form(
+                self.request.POST,
+                self.request.FILES,
+                initial=self.initial,
+            )
+        else:
+            return self.form(
+                initial=self.initial,
+            )
+    
+
+class ModelFormMixin(SingleObjectMixin):
+    """
+    A derivative of SingleObjectMixin that passes get_object() as an instance 
+    to a form.
+    """
+    
+    initial = {}
+    form = None
+    
+    def get_form(self):
+        """
+        Returns a form instantiated with the model instance from get_object().
+        """
+        if self.request.method == 'POST':
+            return self.form(
+                self.request.POST,
+                self.request.FILES,
+                initial=self.initial,
+                instance=self.get_object(),
+            )
+        else:
+            return self.form(
+                initial=self.initial,
+                instance=self.get_object(),
+            )
+    
+
+class ProcessFormView(TemplateView, FormMixin):
+    """
+    A view that processes a form on POST.
+    """
+    
     def POST(self, request, *args, **kwargs):
-        obj = self.get_object(request, *args, **kwargs)
-        form = self.get_form(request, obj, *args, **kwargs)
+        form = self.get_form()
         if form.is_valid():
-            self.process_form(request, obj, form.cleaned_data)
-            return HttpResponseRedirect(self.redirect_to(request, obj))
-        template = self.get_template(request, obj)
-        context = self.get_context(request, obj)
-        mimetype = self.get_mimetype(request, obj)
-        response = self.get_response(request, obj, template, context, mimetype=mimetype)
-        return response
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+    
+    def form_valid(self, form):
+        """
+        Called when the submitted form is verified as valid.
+        """
+        raise NotImplementedError("You must override form_valid.")
 
-    def get_form(self, request, obj, *args, **kwargs):
-        raise NotImplementedError
+    def form_invalid(self, form):
+        """
+        Called when the submitted form comes back with errors.
+        """
+        raise NotImplementedError("You must override form_invalid.")
+    
 
-    def process_form(self, request, obj, data):
-        raise NotImplementedError
+class ProcessModelFormView(ModelFormMixin, ProcessFormView):
+    """
+    A view that saves a ModelForm on POST.
+    """
+    
 
-    def redirect_to(self, request, obj):
-        raise NotImplementedError
+class DisplayFormView(TemplateView, FormMixin):
+    """
+    Displays a form for the user to edit and submit on GET.
+    """
+    
+    def GET(self, request, *args, **kwargs):
+        form = self.get_form()
+        return self.render_to_response(context=self.get_context(form))
+    
+    def get_context(self, form):
+        return {
+            'form': form,
+        }
+    
 
+class DisplayModelFormView(ModelFormMixin, DisplayFormView):
+    """
+    Displays a ModelForm for the user to edit on GET.
+    """
+    
 
-class CreateView(ListView, FormView):
-    pass
+class ModelFormMixin(object):
+    def form_valid(self, form):
+        obj = form.save()
+        return HttpResponseRedirect(self.redirect_to(obj))
+    
+    def redirect_to(self, obj):
+        raise NotImplementedError("You must override redirect_to.")
+    
+    def form_invalid(self, form):
+        return self.GET(request, form)
+    
 
+class CreateView(ModelFormMixin, DisplayFormView, ProcessFormView):
+    """
+    View for creating objects.
+    """
+    
 
-class UpdateView(DetailView, FormView):
-    # FIXME: Er, perhaps not PUT
-    def put(self, request, *args, **kwargs):
-        obj = self.get_object(request, *args, **kwargs)
-        # Force evaluation to populate PUT
-        request.POST
-        request.PUT = request._post
-        del request._post
-        return self.post(request, *args, **kwargs)
-
+class UpdateView(ModelFormMixin, DisplayModelFormView, ProcessModelFormView):
+    """
+    View for updating objects.
+    """
+    
 
 class DeleteView(DetailView):
-    def delete(self, request, *args, **kwargs):
-        obj = self.get_object(request, *args, **kwargs)
+    def POST(self, request, *args, **kwargs):
+        obj = self.get_object()
         obj.delete()
-        return HttpResponseRedirect(self.redirect_to(request, obj))
+        return HttpResponseRedirect(self.redirect_to(obj))
 
-    def post(self, request, *args, **kwargs):
-        return self.delete(request, *args, **kwargs)
-
-    def redirect_to(self, request, obj):
-        raise NotImplementedError
-
+    def redirect_to(self, obj):
+        raise NotImplementedError("You must override redirect_to.")
+    
