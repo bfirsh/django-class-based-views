@@ -29,7 +29,7 @@ urlpatterns = patterns('',
     (r'^list/authors/paginated/(?P<page>\d+)/$', views.PaginatedAuthorList(paginate_by=30)),
     (r'^list/authors/notempty/$', views.AuthorList(allow_empty=False)),
     (r'^list/authors/template_object_name/$', views.AuthorList(template_object_name='author')),
-    (r'^list/authors/invalid/$', views.AuthorList(items=None)),
+    (r'^list/authors/invalid/$', views.AuthorList(queryset=None)),
     #     
     #     # YearView
     #     # Mixing keyword and possitional captures below is intentional; the views

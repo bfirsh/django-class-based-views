@@ -24,7 +24,7 @@ class DecoratedAboutView(class_based_views.View):
 
 class DictList(class_based_views.ListView):
     """A ListView that doesn't use a model."""
-    items = [
+    queryset = [
         {'first': 'John', 'last': 'Lennon'},
         {'last': 'Yoko',  'last': 'Ono'}
     ]
@@ -32,12 +32,12 @@ class DictList(class_based_views.ListView):
 
 
 class AuthorList(class_based_views.ListView):
-    items = Author.objects.all()
+    queryset = Author.objects.all()
     template_name = 'tests/list.html'
 
 
 class PaginatedAuthorList(class_based_views.PaginatedListView):
-    items = Author.objects.all()
+    queryset = Author.objects.all()
     template_name = 'tests/list.html'
 
 
