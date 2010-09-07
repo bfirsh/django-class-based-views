@@ -1,24 +1,33 @@
-from class_based_views.base import View
+from class_based_views.base import View, TemplateView
 from class_based_views.tests.utils import RequestFactory
 from django.core.exceptions import ImproperlyConfigured
+from django.http import HttpResponse
 from django.test import TestCase
 from django.utils import simplejson
 import unittest
 
-class AboutView(View):
+class SimpleView(View):
+    def GET(self, request):
+        return HttpResponse('This is a simple view')
+    
+
+class SimplePostView(SimpleView):
+    POST = SimpleView.GET
+    
+
+class AboutTemplateView(TemplateView):
+    def GET(self, request):
+        return self.render_to_response('tests/about.html', {})
+
+class AboutTemplateAttributeView(TemplateView):
     template_name = 'tests/about.html'
     
-
-class PostAboutView(AboutView):
-    allowed_methods = ['GET', 'POST']
+    def GET(self, request):
+        return self.render_to_response(context={})
     
 
-class StrictAboutView(AboutView):
-    strict_allowed_methods = True
-
-
 class HashView(View):
-    def get_content(self, request):
+    def GET(self, request):
         return unicode(hash(self))
     
 
@@ -56,61 +65,66 @@ class ContextJsonView(JsonView):
         context['tasty'] = True
         return context
     
-
-class ContextProcessorJsonView(JsonView):
-    context_processors = [
-        lambda r: {'tasty': True}
-    ]
+    
+class ViewTest(unittest.TestCase):
+    rf = RequestFactory()
+    
+    def _assert_simple(self, response):
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, 'This is a simple view')
+    
+    def test_get_only(self):
+        """
+        Test a view which only allows GET doesn't allow other methods.
+        """
+        self._assert_simple(SimpleView()(self.rf.get('/')))
+        self.assertEqual(SimpleView()(self.rf.post('/')).status_code, 405)
+        self.assertEqual(SimpleView()(
+            self.rf.get('/', REQUEST_METHOD='FAKE')
+        ).status_code, 405)
+    
+    def test_get_and_post(self):
+        """
+        Test a view which only allows both GET and POST.
+        """
+        self._assert_simple(SimplePostView()(self.rf.get('/')))
+        self._assert_simple(SimplePostView()(self.rf.post('/')))
+        self.assertEqual(SimplePostView()(
+            self.rf.get('/', REQUEST_METHOD='FAKE')
+        ).status_code, 405)
+    
+    def test_calling_more_than_once(self):
+        """
+        Test a view can only be called once.
+        """
+        request = self.rf.get('/')
+        view = HashView()
+        self.assertNotEqual(view(request), view(request))
     
 
-class ViewTest(unittest.TestCase):
+class TemplateViewTest(unittest.TestCase):
     rf = RequestFactory()
     
     def _assert_about(self, response):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, '<h1>About</h1>')
     
-    def test_get_only(self):
+    def test_get(self):
         """
-        Test a view which only allows GET falls through to GET on other methods.
+        Test a view that simply renders a template on GET
         """
-        self._assert_about(AboutView()(self.rf.get('/about/')))
-        self._assert_about(AboutView()(self.rf.post('/about/')))
-        self._assert_about(AboutView()(
-            self.rf.get('/about/', REQUEST_METHOD='FAKE')
-        ))
+        self._assert_about(AboutTemplateView()(self.rf.get('/about/')))
     
-    def test_get_and_post(self):
+    def test_get(self):
         """
-        Test a view that simply renders a template and allows both GET and POST
+        Test a view that renders a template on GET with the template name as 
+        an attribute on the class.
         """
-        self._assert_about(PostAboutView()(self.rf.get('/about/')))
-        self._assert_about(PostAboutView()(self.rf.post('/about/')))
-        self._assert_about(PostAboutView()(
-            self.rf.get('/about/', REQUEST_METHOD='FAKE')
-        ))
+        self._assert_about(AboutTemplateAttributeView()(self.rf.get('/about/')))
     
-    def test_calling_more_than_once(self):
-        """
-        Test a view can only be called once.
-        """
-        request = self.rf.get('/about/')
-        view = HashView()
-        self.assertNotEqual(view(request), view(request))
-    
-    def test_strict_get_only(self):
-        """
-        Test a view which strictly only allows GET does not allow other methods.
-        """
-        self._assert_about(StrictAboutView()(self.rf.get('/about/')))
-        response = StrictAboutView()(self.rf.post('/about/'))
-        self.assertEqual(response.status_code, 405)
-        self.assertEqual(response['Allow'], 'GET')
-        response = StrictAboutView()(
-            self.rf.get('/about/', REQUEST_METHOD='FAKE')
-        )
-        self.assertEqual(response.status_code, 405)
-        self.assertEqual(response['Allow'], 'GET')
+# Broken
+class ResourceViewTest(unittest.TestCase):
+    rf = RequestFactory()
     
     def _assert_html_apple(self, response):
         self.assertEqual(response.status_code, 200)
@@ -193,6 +207,7 @@ class ViewTest(unittest.TestCase):
             'This is a red apple. That is good'
         )
 
+# Broken
 class DecoratorViewTest(TestCase):
     urls = 'class_based_views.tests.urls'
     

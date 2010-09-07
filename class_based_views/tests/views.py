@@ -9,7 +9,7 @@ import class_based_views
 class ObjectDetail(class_based_views.DetailView):
     template_name = 'tests/detail.html'
     
-    def get_object(self, request, **kwargs):
+    def get_object(self):
         return {'foo': 'bar'}
 
 
@@ -32,9 +32,13 @@ class DictList(class_based_views.ListView):
 
 
 class AuthorList(class_based_views.ListView):
-    queryset = Author.objects.all()
+    items = Author.objects.all()
     template_name = 'tests/list.html'
 
+
+class PaginatedAuthorList(class_based_views.PaginatedListView):
+    items = Author.objects.all()
+    template_name = 'tests/list.html'
 
 
 # class AuthorCreate(class_based_views.CreateView):

@@ -11,9 +11,6 @@ class ListViewTests(TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, 'tests/list.html')
         self.assertEqual(res.context['object_list'][0]['first'], 'John')
-        self.assertEqual(res.context['paginator'], None)
-        self.assertEqual(res.context['page_obj'], None)
-        self.assertEqual(res.context['is_paginated'], False)
 
     def test_queryset(self):
         res = self.client.get('/list/authors/')
@@ -21,9 +18,6 @@ class ListViewTests(TestCase):
         self.assertTemplateUsed(res, 'tests/list.html')
         self.assertEqual(list(res.context['object_list']), list(Author.objects.all()))
         self.assertEqual(list(res.context['authors']), list(Author.objects.all()))
-        self.assertEqual(res.context['paginator'], None)
-        self.assertEqual(res.context['page_obj'], None)
-        self.assertEqual(res.context['is_paginated'], False)
 
     def test_paginated_queryset(self):
         self._make_authors(100)

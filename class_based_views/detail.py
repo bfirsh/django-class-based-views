@@ -1,51 +1,31 @@
-from class_based_views import View
+from class_based_views import TemplateView
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.http import Http404
 import re
 
-class DetailView(View):
-    """
-    Render a "detail" view of an object.
-
-    By default this is a model instance lookedup from `self.queryset`, but the
-    view will support display of *any* object by overriding `get_object()`.
-    """
+class SingleObjectMixin(object):
+    queryset = None
+    slug_field = 'slug'
     
-    def __init__(self, **kwargs):
-        self._load_config_values(kwargs, 
-            queryset = None,
-            slug_field = 'slug',
-            template_resource_name = 'object',
-            template_name_field = None,
-        )
-        super(DetailView, self).__init__(**kwargs)
-    
-    def get_resource(self, request, *args, **kwargs):
+    def get_object(self):
         """
-        Get the resource this request wraps. By default this requires
-        `self.queryset` and a `pk` or `slug` argument in the URLconf, but
-        subclasses can override this to return any object.
-        """
-        obj = self.get_object(request, *args, **kwargs)
-        return {self.get_template_resource_name(obj): obj}
-    
-    def get_object(self, request, pk=None, slug=None):
-        """
-        FIXME: Does separating this out from get_resource suck?
-        This might suck.
+        Returns the object the view is displaying.
+        
+        By default this requires `self.queryset` and a `pk` or `slug` argument 
+        in the URLconf, but subclasses can override this to return any object.
         """
         # Use a custom queryset if provided; this is required for subclasses
         # like DateDetailView
         queryset = self.get_queryset()
 
         # Next, try looking up by primary key.
-        if pk:
-            queryset = queryset.filter(pk=pk)
+        if 'pk' in self.kwargs:
+            queryset = queryset.filter(pk=self.kwargs['pk'])
 
         # Next, try looking up by slug.
-        elif slug:
+        elif 'slug' in self.kwargs:
             slug_field = self.get_slug_field()
-            queryset = queryset.filter(**{slug_field: slug})
+            queryset = queryset.filter(**{slug_field: self.kwargs['slug']})
 
         # If none of those are defined, it's an error.
         else:
@@ -54,15 +34,11 @@ class DetailView(View):
                                  % self.__class__.__name__)
 
         try:
-            # FIXME: This is horrible, but is needed for get_template_names
-            # What concerns me about this method of passing data around, is
-            # any change in the order of the methods being called in 
-            # superclasses may break it.
-            self.obj = queryset.get()
+            obj = queryset.get()
         except ObjectDoesNotExist:
             raise Http404("No %s found matching the query" % \
                           (queryset.model._meta.verbose_name))
-        return self.obj
+        return obj
     
     def get_queryset(self):
         """
@@ -82,8 +58,27 @@ class DetailView(View):
         Get the name of a slug field to be used to look up by slug.
         """
         return self.slug_field
+    
 
-    def get_template_names(self):
+class DetailView(SingleObjectMixin, TemplateView):
+    """
+    Render a "detail" view of an object.
+
+    By default this is a model instance lookedup from `self.queryset`, but the
+    view will support display of *any* object by overriding `get_object()`.
+    """
+    template_object_name = 'object'
+    template_name_field = None
+    
+    def GET(self, request, *args, **kwargs):
+        obj = self.get_object()
+        context = self.get_context(obj)
+        return self.render_to_response(self.get_template_names(obj), context)
+    
+    def get_context(self, obj):
+        return {self.get_template_object_name(obj): obj}
+    
+    def get_template_names(self, obj):
         """
         Return a list of template names to be used for the request. Must return
         a list. May not be called if get_template is overridden.
@@ -100,21 +95,21 @@ class DetailView(View):
 
         # The least-specific option is the default <app>/<model>_detail.html;
         # only use this if the object in question is a model.
-        if hasattr(self, 'obj') and hasattr(self.obj, '_meta'):
+        if hasattr(obj, '_meta'):
             names.append("%s/%s_detail.html" % (
-                self.obj._meta.app_label,
-                self.obj._meta.object_name.lower()
+                obj._meta.app_label,
+                obj._meta.object_name.lower()
             ))
 
         return names
 
-    def get_template_resource_name(self, obj):
+    def get_template_object_name(self, obj):
         """
-        Get the name to use for the resource.
+        Get the name to use for the object.
         """
         if hasattr(obj, '_meta'):
             return re.sub('[^a-zA-Z0-9]+', '_', 
                     obj._meta.verbose_name.lower())
         else:
-            return self.template_resource_name
+            return self.template_object_name
     
