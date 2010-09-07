@@ -70,27 +70,27 @@ class AuthorDelete(class_based_views.DeleteView):
         return reverse('authors_list')
 
 
-# class BookConfig(object):
-#     queryset = Book.objects.all()
-#     date_field = 'pubdate'
-# 
-# class BookArchive(BookConfig, class_based_views.ArchiveView):
-#     pass
-# 
-# class BookYearArchive(BookConfig, class_based_views.YearView):
-#     pass
-# 
-# class BookMonthArchive(BookConfig, class_based_views.MonthView):
-#     pass
-# 
-# class BookWeekArchive(BookConfig, class_based_views.WeekView):
-#     pass
-# 
-# class BookDayArchive(BookConfig, class_based_views.DayView):
-#     pass
-# 
-# class BookTodayArchive(BookConfig, class_based_views.TodayView):
-#     pass
-# 
-# class BookDetail(BookConfig, class_based_views.DateDetailView):
-#     pass
+class BookConfig(object):
+    queryset = Book.objects.all()
+    date_field = 'pubdate'
+
+class BookArchive(BookConfig, class_based_views.ArchiveView):
+    pass
+
+class BookYearArchive(BookConfig, class_based_views.YearView):
+    pass
+
+class BookMonthArchive(BookConfig, class_based_views.MonthView):
+    pass
+
+class BookWeekArchive(BookConfig, class_based_views.WeekView):
+    pass
+
+class BookDayArchive(BookConfig, class_based_views.DayView):
+    pass
+
+class BookTodayArchive(BookConfig, class_based_views.TodayView):
+    pass
+
+class BookDetail(BookConfig, class_based_views.DateDetailView):
+    pass

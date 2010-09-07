@@ -11,7 +11,7 @@ class SingleObjectMixin(object):
     queryset = None
     slug_field = 'slug'
     
-    def get_object(self):
+    def get_object(self, queryset=None):
         """
         Returns the object the view is displaying.
         
@@ -20,7 +20,8 @@ class SingleObjectMixin(object):
         """
         # Use a custom queryset if provided; this is required for subclasses
         # like DateDetailView
-        queryset = self.get_queryset()
+        if queryset is None:
+            queryset = self.get_queryset()
 
         # Next, try looking up by primary key.
         if 'pk' in self.kwargs:
@@ -80,7 +81,10 @@ class DetailView(SingleObjectMixin, TemplateView):
         return self.render_to_response(self.get_template_names(obj), context)
     
     def get_context(self, obj):
-        return {self.get_template_object_name(obj): obj}
+        return {
+            'object': obj,
+            self.get_template_object_name(obj): obj
+        }
     
     def get_template_names(self, obj):
         """
