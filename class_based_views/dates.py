@@ -344,13 +344,13 @@ class DateDetailView(DetailView):
     day_format = '%d'
     allow_future = False
     
-    def get_object(self):
+    def get_object(self, year, month, day, pk=None, slug=None):
         """
         Get the object this request displays.
         """
-        date = _date_from_string(self.kwargs['year'], '%Y',
-                                 self.kwargs['month'], self.get_month_format(),
-                                 self.kwargs['day'], self.get_day_format())
+        date = _date_from_string(year, '%Y',
+                                 month, self.get_month_format(),
+                                 day, self.get_day_format())
 
         qs = self.get_queryset()
 
@@ -367,7 +367,7 @@ class DateDetailView(DetailView):
         lookup = _date_lookup_for_field(field, date)
         qs = qs.filter(**lookup)
 
-        return super(DateDetailView, self).get_object(queryset=qs)
+        return super(DateDetailView, self).get_object(pk=pk, slug=slug, queryset=qs)
 
     def get_date_field(self):
         """

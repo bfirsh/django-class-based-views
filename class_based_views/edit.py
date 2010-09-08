@@ -45,12 +45,12 @@ class ModelFormMixin(SingleObjectMixin):
                 self.request.POST,
                 self.request.FILES,
                 initial=self.initial,
-                instance=self.get_object(),
+                instance=self.get_object(*self.args, **self.kwargs),
             )
         else:
             return self.form(
                 initial=self.initial,
-                instance=self.get_object(),
+                instance=self.get_object(*self.args, **self.kwargs),
             )
     
 
@@ -132,7 +132,7 @@ class UpdateView(ModelFormMixin, DisplayModelFormView, ProcessModelFormView):
 
 class DeleteView(DetailView):
     def POST(self, request, *args, **kwargs):
-        obj = self.get_object()
+        obj = self.get_object(*args, **kwargs)
         obj.delete()
         return HttpResponseRedirect(self.redirect_to(obj))
 

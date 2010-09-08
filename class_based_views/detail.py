@@ -11,7 +11,7 @@ class SingleObjectMixin(object):
     queryset = None
     slug_field = 'slug'
     
-    def get_object(self, queryset=None):
+    def get_object(self, pk=None, slug=None, queryset=None):
         """
         Returns the object the view is displaying.
         
@@ -24,13 +24,13 @@ class SingleObjectMixin(object):
             queryset = self.get_queryset()
 
         # Next, try looking up by primary key.
-        if 'pk' in self.kwargs:
-            queryset = queryset.filter(pk=self.kwargs['pk'])
+        if pk is not None:
+            queryset = queryset.filter(pk=pk)
 
         # Next, try looking up by slug.
-        elif 'slug' in self.kwargs:
+        elif slug is not None:
             slug_field = self.get_slug_field()
-            queryset = queryset.filter(**{slug_field: self.kwargs['slug']})
+            queryset = queryset.filter(**{slug_field: slug})
 
         # If none of those are defined, it's an error.
         else:
@@ -76,7 +76,7 @@ class DetailView(SingleObjectMixin, TemplateView):
     template_name_field = None
     
     def GET(self, request, *args, **kwargs):
-        obj = self.get_object()
+        obj = self.get_object(*args, **kwargs)
         context = self.get_context(obj)
         return self.render_to_response(self.get_template_names(obj), context)
     
