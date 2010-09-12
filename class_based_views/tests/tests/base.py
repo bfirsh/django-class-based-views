@@ -115,7 +115,7 @@ class TemplateViewTest(unittest.TestCase):
         """
         self._assert_about(AboutTemplateView()(self.rf.get('/about/')))
     
-    def test_get(self):
+    def test_get_template_attribute(self):
         """
         Test a view that renders a template on GET with the template name as 
         an attribute on the class.

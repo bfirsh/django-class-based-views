@@ -102,6 +102,8 @@ class TemplateView(View):
         if not names:
             raise ImproperlyConfigured("'%s' must provide template_name." 
                                        % self.__class__.__name__)
+        if isinstance(names, basestring):
+            names = [names]
         return self.load_template(names)
     
     def get_template_names(self):
