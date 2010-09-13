@@ -13,7 +13,16 @@ class EditViewTests(TestCase):
                         {'name': 'Randall Munroe', 'slug': 'randall-munroe'})
         self.assertEqual(res.status_code, 302)
         self.assertEqual(str(Author.objects.all()), "[<Author: Randall Munroe>]")
-
+    
+    def test_create_invalid(self):
+        res = self.client.post('/edit/authors/create/',
+                        {'name': 'A' * 101, 'slug': 'randall-munroe'})
+        self.assertEqual(res.status_code, 200)
+        self.assertTemplateUsed(res, 'tests/list.html')
+        self.assertEqual(len(res.context['form'].errors), 1)
+        self.assertEqual(Author.objects.count(), 0)
+        
+    
     def test_restricted_create_restricted(self):
         res = self.client.get('/edit/authors/create/')
         self.assertEqual(res.status_code, 200)
@@ -25,7 +34,10 @@ class EditViewTests(TestCase):
         self.assertRedirects(res, 'http://testserver/accounts/login/?next=/edit/authors/create/restricted/')
 
     def test_update(self):
-        Author.objects.create(**{'name': 'Randall Munroe', 'slug': 'randall-munroe'})
+        Author.objects.create(
+            name='Randall Munroe',
+            slug='randall-munroe',
+        )
         res = self.client.get('/edit/author/1/update/')
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, 'tests/detail.html')
@@ -35,7 +47,24 @@ class EditViewTests(TestCase):
                         {'name': 'Randall Munroe (xkcd)', 'slug': 'randall-munroe'})
         self.assertEqual(res.status_code, 302)
         self.assertEqual(str(Author.objects.all()), "[<Author: Randall Munroe (xkcd)>]")
+    
+    def test_update_invalid(self):
+        Author.objects.create(
+            name='Randall Munroe',
+            slug='randall-munroe',
+        )
+        res = self.client.get('/edit/author/1/update/')
+        self.assertEqual(res.status_code, 200)
+        self.assertTemplateUsed(res, 'tests/detail.html')
 
+        # Modification with both POST and PUT (browser compatible)
+        res = self.client.post('/edit/author/1/update/',
+                        {'name': 'A' * 101, 'slug': 'randall-munroe'})
+        self.assertEqual(res.status_code, 200)
+        self.assertTemplateUsed(res, 'tests/detail.html')
+        self.assertEqual(len(res.context['form'].errors), 1)
+        self.assertEqual(str(Author.objects.all()), "[<Author: Randall Munroe>]")
+    
     def test_delete(self):
         Author.objects.create(**{'name': 'Randall Munroe', 'slug': 'randall-munroe'})
         res = self.client.get('/edit/author/1/delete/')

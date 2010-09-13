@@ -115,7 +115,7 @@ class ModelFormMixin(object):
         raise NotImplementedError("You must override redirect_to.")
     
     def form_invalid(self, form):
-        return self.GET(request, form)
+        return self.GET(self.request, form)
     
 
 class CreateView(ModelFormMixin, DisplayFormView, ProcessFormView):
