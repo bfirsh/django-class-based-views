@@ -17,11 +17,6 @@ class AuthorDetail(class_based_views.DetailView):
     queryset = Author.objects.all()
 
 
-class DecoratedAboutView(class_based_views.View):
-    template_name = 'tests/about.html'
-    decorators = [login_required,]
-
-
 class DictList(class_based_views.ListView):
     """A ListView that doesn't use a model."""
     queryset = [
