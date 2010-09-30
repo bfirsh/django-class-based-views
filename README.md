@@ -1,4 +1,4 @@
-django-class-based-views
+Django class-based views
 ========================
 
 Work on [ticket #6735](http://code.djangoproject.com/ticket/6735).
@@ -8,20 +8,35 @@ Installation
 
     $ python setup.py install
 
+Or for the moment:
+
+    $ pip install -e git@github.com:bfirsh/django-class-based-views.git#egg=django-cbv
+
 
 Usage
 -----
 
 Inherit your own class-based views from existing ones listed below.
 
+Declare your view in your URLs like you already do for classic views:
+
+    import views
+    from django.conf.urls.defaults import *
+    
+    urlpatterns = patterns('',
+        url(r'^detail/author/(?P<pk>\d+)/$',
+            views.AuthorDetail(),
+            name="author_detail"),
+    )
+
 Note: you must declare an **instance** of the class in your URLs, not the 
       class in order to avoid shared attributes across requests.
+
 
 Views
 -----
 
-CRUD views
-~~~~~~~~~~
+### CRUD views
 
 * ListView: Render some list of objects, set by `self.queryset`. 
   This can be any iterable of items, not just a queryset.
@@ -37,8 +52,7 @@ CRUD views
 * DeleteView: View for deleting an object retrieved with `self.get_object()`.
 
 
-Extra views
-~~~~~~~~~~~
+### Extra views
 
 * PaginatedListView
 * ProcessFormView
@@ -47,8 +61,7 @@ Extra views
 * DisplayModelFormView
 
 
-Date-based views
-~~~~~~~~~~~~~~~~
+### Date-based views
 
 * ArchiveView
 * YearView
