@@ -120,17 +120,20 @@ class ModelFormMixin(object):
 
 class CreateView(ModelFormMixin, DisplayFormView, ProcessFormView):
     """
-    View for creating objects.
+    View for creating an object.
     """
     
 
 class UpdateView(ModelFormMixin, DisplayModelFormView, ProcessModelFormView):
     """
-    View for updating objects.
+    View for updating an object.
     """
     
 
 class DeleteView(DetailView):
+    """
+    View for deleting an object retrieved with `self.get_object()`.
+    """
     def POST(self, request, *args, **kwargs):
         obj = self.get_object(*args, **kwargs)
         obj.delete()
