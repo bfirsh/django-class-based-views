@@ -52,6 +52,9 @@ class View(object):
         self.request = request
         self.args = args
         self.kwargs = kwargs
+        return self.dispatch(request, *args, **kwargs)
+    
+    def dispatch(self, request, *args, **kwargs):
         # Try to dispatch to the right method for that; if it doesn't exist,
         # raise a big error.
         if hasattr(self, request.method.upper()):
