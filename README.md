@@ -34,7 +34,7 @@ Declare your view in your URLs like you already do for classic views:
     )
 
 Note: you must declare an **instance** of the class in your URLs, not the 
-      class in order to avoid shared attributes across requests.
+class in order to avoid shared attributes across requests.
 
 
 Views
@@ -56,8 +56,7 @@ Views
 * DeleteView: View for deleting an object retrieved with `self.get_object()`.
 
 HTTP support: note that you can use POST or PUT HTTP verb for 
-              creating/editing an object and POST or DELETE for deleting an
-              object.
+creating/editing an object and POST or DELETE for deleting an object.
 
 ### Extra views
 
