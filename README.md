@@ -16,7 +16,11 @@ Or for the moment:
 Usage
 -----
 
-Inherit your own class-based views from existing ones listed below.
+Inherit your own class-based views from existing ones listed below:
+
+    class AuthorDetail(class_based_views.DetailView):
+        queryset = Author.objects.all()
+
 
 Declare your view in your URLs like you already do for classic views:
 
@@ -51,6 +55,9 @@ Views
 
 * DeleteView: View for deleting an object retrieved with `self.get_object()`.
 
+HTTP support: note that you can use POST or PUT HTTP verb for 
+              creating/editing an object and POST or DELETE for deleting an
+              object.
 
 ### Extra views
 
