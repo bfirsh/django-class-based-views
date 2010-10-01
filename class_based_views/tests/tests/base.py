@@ -26,9 +26,9 @@ class AboutTemplateAttributeView(TemplateView):
         return self.render_to_response(context={})
     
 
-class HashView(View):
+class InstanceView(View):
     def GET(self, request):
-        return unicode(hash(self))
+        return self
     
 
 class ViewTest(unittest.TestCase):
@@ -63,7 +63,7 @@ class ViewTest(unittest.TestCase):
         Test a view can only be called once.
         """
         request = self.rf.get('/')
-        view = HashView()
+        view = InstanceView()
         self.assertNotEqual(view(request), view(request))
     
 
