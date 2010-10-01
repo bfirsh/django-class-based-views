@@ -48,6 +48,11 @@ class EditViewTests(TestCase):
         self.assertEqual(res.status_code, 302)
         self.assertEqual(str(Author.objects.all()), "[<Author: Randall Munroe (xkcd)>]")
     
+        res = self.client.put('/edit/author/1/update/',
+                        {'name': 'Randall Munroe (author of xkcd)', 'slug': 'randall-munroe'})
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(str(Author.objects.all()), "[<Author: Randall Munroe (author of xkcd)>]")
+    
     def test_update_invalid(self):
         Author.objects.create(
             name='Randall Munroe',
@@ -76,3 +81,7 @@ class EditViewTests(TestCase):
         self.assertEqual(res.status_code, 302)
         self.assertEqual(str(Author.objects.all()), '[]')
     
+        Author.objects.create(**{'name': 'Randall Munroe', 'slug': 'randall-munroe'})
+        res = self.client.delete('/edit/author/1/delete/')
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(str(Author.objects.all()), '[]')

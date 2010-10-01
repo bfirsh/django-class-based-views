@@ -4,6 +4,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.template import RequestContext, loader
 from django.utils.translation import ugettext_lazy as _
 
+from utils import coerce_put_post
+
 def quacks_like_a_request(request):
     return hasattr(request, 'method') and hasattr(request, 'path')
 
@@ -53,6 +55,8 @@ class View(object):
         # Try to dispatch to the right method for that; if it doesn't exist,
         # raise a big error.
         if hasattr(self, request.method.upper()):
+            if request.method == "PUT":
+                coerce_put_post(request)
             return getattr(self, request.method.upper())(request, *args, **kwargs)
         else:
             allowed_methods = [m for m in self.method_names if hasattr(self, m)]

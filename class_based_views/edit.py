@@ -15,7 +15,7 @@ class FormMixin(object):
         """
         Returns the form to be used in this view.
         """
-        if self.request.method == 'POST':
+        if self.request.method in ('POST', 'PUT'):
             return self.form(
                 self.request.POST,
                 self.request.FILES,
@@ -40,7 +40,7 @@ class ModelFormMixin(SingleObjectMixin):
         """
         Returns a form instantiated with the model instance from get_object().
         """
-        if self.request.method == 'POST':
+        if self.request.method in ('POST', 'PUT'):
             return self.form(
                 self.request.POST,
                 self.request.FILES,
@@ -58,13 +58,16 @@ class ProcessFormView(TemplateView, FormMixin):
     """
     A view that processes a form on POST.
     """
-    
     def POST(self, request, *args, **kwargs):
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
+    
+    # PUT is a valid HTTP verb for creating (with a known URL) or editing an
+    # object, note that browsers only support POST for now.
+    PUT = POST
     
     def form_valid(self, form):
         """
@@ -89,7 +92,6 @@ class DisplayFormView(TemplateView, FormMixin):
     """
     Displays a form for the user to edit and submit on GET.
     """
-    
     def GET(self, request, *args, **kwargs):
         form = self.get_form()
         return self.render_to_response(context=self.get_context(form))
@@ -133,11 +135,14 @@ class UpdateView(ModelFormMixin, DisplayModelFormView, ProcessModelFormView):
 class DeleteView(DetailView):
     """
     View for deleting an object retrieved with `self.get_object()`.
-    """
-    def POST(self, request, *args, **kwargs):
+    """    
+    def DELETE(self, request, *args, **kwargs):
         obj = self.get_object(*args, **kwargs)
         obj.delete()
         return HttpResponseRedirect(self.redirect_to(obj))
+
+    # Add support for browsers which only accept GET and POST for now.
+    POST = DELETE
 
     def redirect_to(self, obj):
         raise NotImplementedError("You must override redirect_to.")

@@ -3,8 +3,8 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     # base
-    (r'^about/login-required/$',
-        views.DecoratedAboutView()),
+    #(r'^about/login-required/$',
+    #    views.DecoratedAboutView()),
     
     # DetailView
     (r'^detail/obj/$',
