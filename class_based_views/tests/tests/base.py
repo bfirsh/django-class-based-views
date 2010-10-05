@@ -42,9 +42,9 @@ class ViewTest(unittest.TestCase):
         """
         Test a view which only allows GET doesn't allow other methods.
         """
-        self._assert_simple(SimpleView()(self.rf.get('/')))
-        self.assertEqual(SimpleView()(self.rf.post('/')).status_code, 405)
-        self.assertEqual(SimpleView()(
+        self._assert_simple(SimpleView.as_view()(self.rf.get('/')))
+        self.assertEqual(SimpleView.as_view()(self.rf.post('/')).status_code, 405)
+        self.assertEqual(SimpleView.as_view()(
             self.rf.get('/', REQUEST_METHOD='FAKE')
         ).status_code, 405)
     
@@ -52,9 +52,9 @@ class ViewTest(unittest.TestCase):
         """
         Test a view which only allows both GET and POST.
         """
-        self._assert_simple(SimplePostView()(self.rf.get('/')))
-        self._assert_simple(SimplePostView()(self.rf.post('/')))
-        self.assertEqual(SimplePostView()(
+        self._assert_simple(SimplePostView.as_view()(self.rf.get('/')))
+        self._assert_simple(SimplePostView.as_view()(self.rf.post('/')))
+        self.assertEqual(SimplePostView.as_view()(
             self.rf.get('/', REQUEST_METHOD='FAKE')
         ).status_code, 405)
     
@@ -63,7 +63,7 @@ class ViewTest(unittest.TestCase):
         Test a view can only be called once.
         """
         request = self.rf.get('/')
-        view = InstanceView()
+        view = InstanceView.as_view()
         self.assertNotEqual(view(request), view(request))
     
 
@@ -78,12 +78,12 @@ class TemplateViewTest(unittest.TestCase):
         """
         Test a view that simply renders a template on GET
         """
-        self._assert_about(AboutTemplateView()(self.rf.get('/about/')))
+        self._assert_about(AboutTemplateView.as_view()(self.rf.get('/about/')))
     
     def test_get_template_attribute(self):
         """
         Test a view that renders a template on GET with the template name as 
         an attribute on the class.
         """
-        self._assert_about(AboutTemplateAttributeView()(self.rf.get('/about/')))
+        self._assert_about(AboutTemplateAttributeView.as_view()(self.rf.get('/about/')))
     
