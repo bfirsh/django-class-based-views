@@ -34,15 +34,15 @@ class SingleObjectMixin(object):
 
         # If none of those are defined, it's an error.
         else:
-            raise AttributeError("Generic detail view %s must be called with "\
-                                 "either an object id or a slug." \
+            raise AttributeError(u"Generic detail view %s must be called with "
+                                 u"either an object id or a slug."
                                  % self.__class__.__name__)
 
         try:
             obj = queryset.get()
         except ObjectDoesNotExist:
-            raise Http404("No %s found matching the query" % \
-                          (queryset.model._meta.verbose_name))
+            raise Http404(u"No %s found matching the query"
+                          % (queryset.model._meta.verbose_name))
         return obj
     
     def get_queryset(self):
@@ -51,9 +51,9 @@ class SingleObjectMixin(object):
         `get_object` is overridden.
         """
         if self.queryset is None:
-            raise ImproperlyConfigured("%(cls)s is missing a queryset. Define "\
-                                       "%(cls)s.queryset, or override "\
-                                       "%(cls)s.get_object()." % {
+            raise ImproperlyConfigured(u"%(cls)s is missing a queryset. Define "
+                                       u"%(cls)s.queryset, or override "\
+                                       u"%(cls)s.get_object()." % {
                                             'cls': self.__class__.__name__
                                         })
         return self.queryset._clone()

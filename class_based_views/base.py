@@ -31,13 +31,13 @@ class View(object):
         # instance, or raise an error.
         for key, value in kwargs.items():
             if key in self.method_names:
-                raise TypeError("You tried to pass in the %s method name as a "
-                                "keyword argument to %s(). Don't do that." 
+                raise TypeError(u"You tried to pass in the %s method name as a "
+                                u"keyword argument to %s(). Don't do that." 
                                 % (key, self.__class__.__name__))
             if hasattr(self, key):
                 setattr(self, key, value)
             else:
-                raise TypeError("%s() received an invalid keyword %r" % (
+                raise TypeError(u"%s() received an invalid keyword %r" % (
                     self.__class__.__name__,
                     key,
                 ))
@@ -107,7 +107,7 @@ class TemplateView(View):
         if names is None:
             names = self.get_template_names()
         if not names:
-            raise ImproperlyConfigured("'%s' must provide template_name." 
+            raise ImproperlyConfigured(u"'%s' must provide template_name." 
                                        % self.__class__.__name__)
         if isinstance(names, basestring):
             names = [names]

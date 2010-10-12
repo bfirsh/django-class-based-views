@@ -25,9 +25,9 @@ class DateView(ListView):
         `get_dated_items` is overridden.
         """
         if self.queryset is None:
-            raise ImproperlyConfigured("%(cls)s is missing a queryset. Define "\
-                                       "%(cls)s.queryset, or override "\
-                                       "%(cls)s.get_dated_items()." \
+            raise ImproperlyConfigured(u"%(cls)s is missing a queryset. Define "
+                                       u"%(cls)s.queryset, or override "
+                                       u"%(cls)s.get_dated_items()."
                                        % {'cls': self.__class__.__name__})
         return self.queryset._clone()
 
@@ -45,8 +45,8 @@ class DateView(ListView):
             qs = qs.filter(**{'%s__lte' % date_field: datetime.datetime.now()})
 
         if not allow_empty and not qs:
-            raise Http404("No %s available" % qs.model._meta.verbose_name_plural)
-
+            raise Http404(u"No %s available"
+                          % qs.model._meta.verbose_name_plural)
         return qs
 
     def get_date_list(self, queryset, date_type):
@@ -59,7 +59,8 @@ class DateView(ListView):
 
         date_list = queryset.dates(date_field, date_type)[::-1]
         if date_list is not None and not date_list and not allow_empty:
-            raise Http404("No %s available" % queryset.model._meta.verbose_name_plural)
+            raise Http404(u"No %s available"
+                          % queryset.model._meta.verbose_name_plural)
 
         return date_list
 
@@ -68,7 +69,8 @@ class DateView(ListView):
         Get the name of the date field to be used to filter by.
         """
         if self.date_field is None:
-            raise ImproperlyConfigured("%s.date_field is required." % self.__class__.__name__)
+            raise ImproperlyConfigured(u"%s.date_field is required." 
+                                       % self.__class__.__name__)
         return self.date_field
 
     def get_allow_future(self):
@@ -91,7 +93,10 @@ class DateView(ListView):
         Return a list of template names to be used for the request. Must return
         a list. May not be called if get_template is overridden.
         """
-        return super(DateView, self).get_template_names(items, suffix=self._template_name_suffix)
+        return super(DateView, self).get_template_names(
+            items,
+            suffix=self._template_name_suffix
+        )
 
     def get_dated_items(self, *args, **kwargs):
         """
@@ -355,8 +360,8 @@ class DateDetailView(DetailView):
         qs = self.get_queryset()
 
         if not self.get_allow_future() and date > datetime.date.today():
-            raise Http404("Future %s not available because %s.allow_future is "
-                          "False."
+            raise Http404(u"Future %s not available because %s.allow_future is "
+                          u"False."
                           % (qs.model._meta.verbose_name_plural, self.__class__.__name__))
 
         # Filter down a queryset from self.queryset using the date from the
@@ -374,7 +379,7 @@ class DateDetailView(DetailView):
         Get the name of the date field to be used to filter by.
         """
         if self.date_field is None:
-            raise ImproperlyConfigured("%s.date_field is required." 
+            raise ImproperlyConfigured(u"%s.date_field is required." 
                                        % self.__class__.__name__)
         return self.date_field
 
@@ -409,7 +414,8 @@ def _date_from_string(year, year_format, month, month_format, day='', day_format
     try:
         return datetime.date(*time.strptime(datestr, format)[:3])
     except ValueError:
-        raise Http404("Invalid date string '%s' given format '%s'" % (datestr, format))
+        raise Http404(u"Invalid date string '%s' given format '%s'" 
+                      % (datestr, format))
 
 def _month_bounds(date):
     """

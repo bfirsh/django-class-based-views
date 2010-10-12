@@ -17,7 +17,7 @@ class ListView(TemplateView):
         queryset = self.get_queryset()
         allow_empty = self.get_allow_empty()
         if not allow_empty and len(queryset) == 0:
-            raise Http404("Empty list and '%s.allow_empty' is False."
+            raise Http404(u"Empty list and '%s.allow_empty' is False."
                           % self.__class__.__name__)
         context = self.get_context(queryset)
         return self.render_to_response(self.get_template_names(queryset), context)
@@ -42,12 +42,12 @@ class ListView(TemplateView):
         if hasattr(self, 'queryset') and self.queryset is not None:
             queryset = self.queryset
         else:
-            raise ImproperlyConfigured("'%s' must define 'queryset'"
+            raise ImproperlyConfigured(u"'%s' must define 'queryset'"
                                        % self.__class__.__name__)
         if hasattr(queryset, '_clone'):
             queryset = queryset._clone()
         return queryset
-        
+    
     def get_allow_empty(self):
         """
         Returns ``True`` if the view should display empty lists, and ``False``
