@@ -6,9 +6,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from utils import coerce_put_post
 
-def quacks_like_a_request(request):
-    return hasattr(request, 'method') and hasattr(request, 'path')
-
 class View(object):
     """
     Intentionally simple parent class for all views. Only implements 
@@ -22,11 +19,6 @@ class View(object):
         Constructor. Called in the URLconf; can contain helpful extra
         keyword arguments, and other things.
         """
-        # If the first argument is a request, helpfully inform people
-        # they need to instantiate the class in the URLs.
-        if args and quacks_like_a_request(args[0]):
-            raise RuntimeError("You must use an instance of View as a view, "
-                               "not the class itself.")
         # Go through keyword arguments, and either save their values to our
         # instance, or raise an error.
         for key, value in kwargs.items():
@@ -42,22 +34,23 @@ class View(object):
                     key,
                 ))
     
-    def __call__(self, request, *args, **kwargs):
+    @classmethod
+    def as_view(cls, *initargs, **initkwargs):
         """
         Main entry point for a request-response process.
         """
-        # First, change to a copy of ourselves to stop state in 
-        # "self." persisting. We only need a shallow copy, really.
-        self = copy.copy(self)
-        self.request = request
-        self.args = args
-        self.kwargs = kwargs
-        return self.dispatch(request, *args, **kwargs)
+        def view(request, *args, **kwargs):
+            self = cls(*initargs, **initkwargs)
+            return self.dispatch(request, *args, **kwargs)
+        return view
     
     def dispatch(self, request, *args, **kwargs):
         # Try to dispatch to the right method for that; if it doesn't exist,
         # raise a big error.
         if hasattr(self, request.method.upper()):
+            self.request = request
+            self.args = args
+            self.kwargs = kwargs
             if request.method == "PUT":
                 coerce_put_post(request)
             return getattr(self, request.method.upper())(request, *args, **kwargs)
