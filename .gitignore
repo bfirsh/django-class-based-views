@@ -1,2 +1,3 @@
 *.pyc
 /test_project
+/django_class_based_views.egg-info
